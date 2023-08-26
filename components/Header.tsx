@@ -1,11 +1,16 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { twMerge } from "tailwind-merge";
-import { RxCaretLeft } from "react-icons/rx"
-import { HiHome } from "react-icons/hi";
+import { useRouter } from "next/navigation";
 import { BiSearch } from "react-icons/bi";
+import { HiHome } from "react-icons/hi";
+import { RxCaretLeft } from "react-icons/rx"
+import { useSupabaseClient } from "@supabase/auth-helpers-react";
+import { useUser } from "@/hooks/useUser";
+
 import Button from "./Button";
+
+import useAuthModal from "@/hooks/useAuthModal";
 
 interface HeaderProps {
   children: React.ReactNode;
@@ -17,10 +22,20 @@ const Header: React.FC<HeaderProps> = ({
     children,
     className
 }) => {
+  const authModal = useAuthModal();
   const router = useRouter();
 
-  const hanldeLogout = () => {
-    // Handle logout in the future
+  const supabaseClient = useSupabaseClient();
+  const { user } = useUser();
+
+  const hanldeLogout = async () => {
+    const {error} = await supabaseClient.auth.signOut();
+    // TODO: reset any playing songs future
+    router.refresh();
+
+    if (error) {
+      console.log(error);
+    }
   }
 
   return (
@@ -86,14 +101,14 @@ const Header: React.FC<HeaderProps> = ({
            <>
            <div>
              <Button
-             onClick={() => {}}
+             onClick={authModal.onOpen}
              className="bg-transparent text-neutral-300 font-medium">
               Sign Up
              </Button>
            </div>
            <div>
              <Button
-               onClick={() => {}}
+               onClick={authModal.onOpen}
                className="bg-white px-6 py-2">
               Log in
              </Button>
