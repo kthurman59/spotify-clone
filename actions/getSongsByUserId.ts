@@ -3,15 +3,26 @@ import { cookies } from "next/headers";
 
 import { Song } from "@/types";
 
-const getSongs = async (): Promise<Song[]> => {
+const getSongsByUserId = async (): Promise<Song[]> => {
   const supabase = createServerComponentClient({
     cookies: cookies
   });
 
+  const {
+    data: sessionData,
+    error: sessionError
+  } = await supabase.auth.getSession();
+
+  if (sessionError) {
+    console.log(sessionError.message);
+    return [];
+  }
+
   const { data, error } = await supabase
     .from('songs')
     .select('*')
-    .order('created_at', { ascending: false })
+    .eq('user_id', sessionData.session?.user.id)
+    .order('created_at', { ascending: false });
 
   if (error) {
     console.log(error.message);
@@ -20,4 +31,4 @@ const getSongs = async (): Promise<Song[]> => {
   return (data as any) || [];
 };
 
-export default getSongs;
+export default getSongsByUserId;
