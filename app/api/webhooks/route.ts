@@ -58,7 +58,25 @@ export async function POST(
             event.type === 'customer.subscription.created'
           );
           break;
+        case 'checkout.session.completed':
+          const checkoutSession = event.data.object as Stripe.Checkout.Session;
+          if (checkoutSession.mode === 'subscription') {
+            const subscriptionId = checkoutSession.subscription;
+            await manageSubscriptionStatusChange(
+              subscriptionId as string,
+              checkoutSession.customer as string,
+              true
+            );
+          }
+          break;
+        default:
+          throw new Error('unhandled relevant event!');
       }
+    } catch (error) {
+      console.log(error);
+      return new NextResponse('Webhook error', { status: 400 });
     }
   }
+
+  return NextResponse.json({ received: true }, { status: 200 });
 }
