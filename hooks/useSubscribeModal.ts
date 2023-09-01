@@ -1,12 +1,12 @@
-import { create } from "zustand";
+import { create } from 'zustand';
 
-interface useSubscribeModal {
+interface SubscribeModalStore {
   isOpen: boolean;
   onOpen: () => void;
   onClose: () => void;
-};
+}
 
-const useAuthModal = create<useSubscribeModal>((set) => ({
+const useSubscribeModal = create<SubscribeModalStore>((set) => ({
   isOpen: false,
   onOpen: () => set({ isOpen: true }),
   onClose: () => set({ isOpen: false }),
